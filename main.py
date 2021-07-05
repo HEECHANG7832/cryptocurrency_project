@@ -1,15 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
-# 3.21 수익률 모니터링 만들기
-
-
-# In[2]:
-
-
 import time
 import pybithumb
 import datetime
@@ -21,10 +9,6 @@ from PyQt5 import uic
 from PyQt5.QtCore import *
 
 import pandas as pd
-
-
-# In[3]:
-
 
 
 k = 0.8
@@ -68,8 +52,6 @@ def get_yesterday_ma5(ticker):
 
 
 
-# In[8]:
-
 
 
 now = datetime.datetime.now()
@@ -88,9 +70,6 @@ print("현금 비중 : ", investRate)
 print("여유금 : ", protectedBalance)
 
 
-# In[6]:
-
-
 
 
 # yesterday = date.today() - timedelta(1)
@@ -106,10 +85,6 @@ print("여유금 : ", protectedBalance)
 # #df_yesterday.loc[,'current_price']
 
 
-# In[9]:
-
-
-
 
 #ticker, target_price, ma5, current_price, state
 tickers = pybithumb.get_tickers()
@@ -123,7 +98,7 @@ for ticker in tickers:
         continue
     ma5 = get_yesterday_ma5(ticker)
     
-    sell_crypto_currency(ticker)
+    #sell_crypto_currency(ticker)
 
     current_price = pybithumb.get_current_price(ticker)
     
@@ -138,11 +113,9 @@ for ticker in tickers:
         inList.append("상승장")
 
         list.append(inList)
-        buy_crypto_currency(100000, ticker)
+        #buy_crypto_currency(100000, ticker)
         print("\nBUY !!! " + ticker)
-
-
-# In[10]:
+        
 
 
 df = pd.DataFrame(list, columns=["ticker", "target_price", "ma5", "current_price", "state"])
@@ -151,116 +124,44 @@ df.to_csv(now.strftime('%Y-%m-%d')+'.txt', header=None, index=None, sep=' ', mod
 print(df)
 
 
-# In[19]:
 
+### Connect RDS Mysql
 
+import pymysql
 
+conn = None
+cur = None
 
+sql="desc data4"
 
-# In[49]:
+conn = pymysql.connect(host="springboot2-webservice.ctsnx9",
+                      user="",
+                      password="",
+                      db='springboot2_webservice',
+                      charset='utf8')
+cur = conn.cursor()
+print(cur.execute(sql))
 
+import datetime
 
-# import pybithumb
-# import numpy as np
+day = now.strftime('%Y-%m-%d')
 
-# list = []
-# data = pd.DataFrame(list, columns=['bull3', 'ror3', 'bull5', 'ror5', 'bull10', 'ror10', 'bull30', 'ror30'])
-
-# def get_hpr(ticker):
-#     df = pybithumb.get_ohlcv(ticker)
-#     #df = df['2020']
-
-#     df['ma3'] = df['close'].rolling(window=3).mean().shift(1) #ma3
-#     df['range'] = (df['high'] - df['low']) * 0.5 #range
-#     df['target'] = df['open'] + df['range'].shift(1) #shift range
-#     df['bull3'] = df['open'] > df['ma3'] #
-
-#     fee = 0.0032
-#     df['ror3'] = np.where((df['high'] > df['target']) & df['bull3'],
-#                           df['close'] / df['target'] - fee,
-#                           1)
+for i in df.index:
+    list = df.loc[i,:].tolist()    
+    sql="""insert into tables(date_string, ticker, target_price, ma5, current_price) VALUES(\""""+now.strftime('%Y-%m-%d') +"\",\""+ list[0] +"\","+ str(list[1]) +","+ str(list[2]) +","+ str(list[3]) +")"
+    print(sql)
     
-#     df['ma5'] = df['close'].rolling(window=5).mean().shift(1) #ma3
-#     df['range'] = (df['high'] - df['low']) * 0.5 #range
-#     df['target'] = df['open'] + df['range'].shift(1) #shift range
-#     df['bull5'] = df['open'] > df['ma5'] #
-
-#     fee = 0.0032
-#     df['ror5'] = np.where((df['high'] > df['target']) & df['bull5'],
-#                           df['close'] / df['target'] - fee,
-#                           1)
     
-#     df['ma10'] = df['close'].rolling(window=10).mean().shift(1) #ma3
-#     df['range'] = (df['high'] - df['low']) * 0.5 #range
-#     df['target'] = df['open'] + df['range'].shift(1) #shift range
-#     df['bull10'] = df['open'] > df['ma10'] #
+    print(cur.execute(sql))
 
-#     fee = 0.0032
-#     df['ror10'] = np.where((df['high'] > df['target']) & df['bull10'],
-#                           df['close'] / df['target'] - fee,
-#                           1)
     
-#     df['ma30'] = df['close'].rolling(window=30).mean().shift(1) #ma3
-#     df['range'] = (df['high'] - df['low']) * 0.5 #range
-#     df['target'] = df['open'] + df['range'].shift(1) #shift range
-#     df['bull30'] = df['open'] > df['ma30'] #
+sql="select * from tables"
+print(cur.execute(sql))
+rows = cur.fetchall()
+print(rows)
 
-#     fee = 0.0032
-#     df['ror30'] = np.where((df['high'] > df['target']) & df['bull30'],
-#                           df['close'] / df['target'] - fee,
-#                           1)
+conn.commit()        
     
-#     df['ror'] = np.where(1,
-#                           df['close'] / df['target'] - fee,
-#                           1)
-#     df['rorbull'] = np.where(df['ror'] >= 1.0,
-#                             1,
-#                             0)
-    
-#     #df['hpr'] = df['ror'].cumprod()
-#     #df['dd'] = (df['hpr'].cummax() - df['hpr']) / df['hpr'].cummax() * 100
-#     print(df.loc[:, df.columns.isin(['volume','rorbull', 'bull3', 'bull5','bull10', 'bull30'])].head(20))
-#     return 0 #df['hpr'][-2]
-
-
-# tickers = pybithumb.get_tickers()
-
-# hprs = []
-# ticker = 'BTC'
-# #for ticker in tickers:
-# hpr = get_hpr(ticker)
-# hprs.append((ticker, hpr))
-
-
-# #sorted_hprs = sorted(hprs, key=lambda x:x[1])
-# #print(sorted_hprs[-5:])
-
-
-# 
-
-# In[6]:
-
-
-df
-
-
-# In[3]:
-
-
-# import pybithumb
-# import numpy as np
-
-# #for coin in  pybithumb.get_tickers():
-# #    print(coin, pybithumb.get_market_detail(coin))
-
-
-# df = pybithumb.get_candlestick("BTC")
-# print(df.tail(5))
     
 
-
-# In[ ]:
-
-
-
-
+conn.close()
