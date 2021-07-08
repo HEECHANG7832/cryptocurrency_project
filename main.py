@@ -4,9 +4,6 @@ import datetime
 from datetime import date, timedelta
 
 import sys
-from PyQt5.QtWidgets import *
-from PyQt5 import uic
-from PyQt5.QtCore import *
 
 import pandas as pd
 
