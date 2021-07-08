@@ -59,15 +59,14 @@ mid = datetime.datetime(now.year, now.month, now.day) + datetime.timedelta(1)
 ma5 = get_yesterday_ma5("BTC")
 target_price = get_target_price("BTC")
 
-#포트폴리오
-#전체중 절반 투자
+
 investRate = 0.5
 balance = 2000000
 protectedBalance = balance * investRate
 
-print("투자 원금 : ", balance)
-print("현금 비중 : ", investRate)
-print("여유금 : ", protectedBalance)
+print(balance)
+print(investRate)
+print(protectedBalance)
 
 
 
@@ -110,7 +109,6 @@ for ticker in tickers:
         inList.append(target_price)
         inList.append(ma5)
         inList.append(current_price)
-        inList.append("상승장")
 
         list.append(inList)
         #buy_crypto_currency(100000, ticker)
